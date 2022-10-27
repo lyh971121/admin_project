@@ -1,0 +1,80 @@
+1、粘贴acl组件和权限路由    api/index 把权限路由和商品管理暴露出去  完成页面准备
+
+2、拆分路由  同步、异步、任意
+
+3、sotre/user.js  引入路由router 'vue'
+引入三个路由
+resetRouter，constantRoutes, asyncRoutes, anyRoute
+
+4、getDefaultState函数回调里的resultAsyncRoutes[]用来存储新角色的新增的动态路由
+     
+mutations修改状态函数里 使用SET_ROUTES 为最终计算的异步路由
+        
+    SET_ROUTRS:(state,asyncRoutes) =>{
+    //保存当前的用户的异步路由  一个用户需要展示完成路由包括：常量、异步、任意路由
+    state.resultAsyncRoutes = asyncRoutes
+   
+  },
+
+
+下面在获取用户信息是提交路由
+commit('SET_ROUTRS',computedAsyncRoutes(asyncRoutes,data.routes))
+	
+//定义一个函数：两个数组对比 对比出当前用户到底显示哪些异步路由
+const computedAsyncRoutes = (asyncRoutes,routes) =>{
+  //过滤出当前用户需要展示的异步路由
+  return asyncRoutes.filter(item=>{
+    //数组当中没有这个元素返回索引值为-1 如果有返回的索引值一定不是-1
+    if(routes.indexOf(item.name)!=-1){
+      //递归 因为还有2，3，4，，，级路由
+      if(item.children&&item.children.length){
+        item.children = computedAsyncRoutes(item.children,routes)
+      }
+      return true;
+    }
+  })
+}
+
+
+
+注册的路由只有常量路由 需要把计算出来的异步路由合并
+
+//用户需要展示的全部路由
+    resultAllRoutes:[],
+
+
+//存储新路由
+  SET_ROUTRS:(state,asyncRoutes) =>{
+    //保存当前的用户的异步路由  一个用户需要展示完成路由包括：常量、异步、任意路由
+    state.resultAsyncRoutes = asyncRoutes
+    //计算出当前用户需要展示的所有路由
+    state.resultAllRoutes = constantRoutes.concat(this,resultAsyncRoutes,anyRoute)
+  },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
